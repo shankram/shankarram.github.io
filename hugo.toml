@@ -1,4 +1,4 @@
-baseurl      = "http://localhost:8888"
+baseurl      = "https://shankram.github.io"
 title        = "My Blog"
 languageCode = "en-us"
 theme        = "hello-friend-ng"

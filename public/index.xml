@@ -2,25 +2,25 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>(base) shankarram:~</title>
-    <link>http://localhost:1313/</link>
+    <link>http://localhost:44835/</link>
     <description>Recent content on (base) shankarram:~</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>&lt;a href=&#34;https://creativecommons.org/licenses/by-nc/4.0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;CC BY-NC 4.0&lt;/a&gt;</copyright>
     <lastBuildDate>Fri, 30 Aug 2024 21:39:42 +0530</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:44835/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Drag Gan</title>
-      <link>http://localhost:1313/posts/30-08-2024-drag-gan/</link>
+      <link>http://localhost:44835/posts/30-08-2024-drag-gan/</link>
       <pubDate>Fri, 30 Aug 2024 21:39:42 +0530</pubDate>
-      <guid>http://localhost:1313/posts/30-08-2024-drag-gan/</guid>
+      <guid>http://localhost:44835/posts/30-08-2024-drag-gan/</guid>
       <description>DragGAN - Point-based Image Manipulation : Overview Generative Adversarial Networks (GANs) have revolutionized image generation over the past several years. Models like StyleGAN2 enable the creation of high-quality images that closely resemble the features of the training dataset. While advancements in architecture and training paradigms have significantly improved image generation quality, progress in manipulating generated images has been limited. For example, while a conditional GAN can generate an image of a person with specific attributes, altering these attributes in the generated image remains challenging.</description>
     </item>
     <item>
       <title>About</title>
-      <link>http://localhost:1313/about/</link>
+      <link>http://localhost:44835/about/</link>
       <pubDate>Wed, 09 Apr 2014 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/about/</guid>
+      <guid>http://localhost:44835/about/</guid>
       <description>Hello! I am Shankar Ram. I did my MSc in Computer Science and BSc in Mathematics and Computer Science from Chennai Mathematical Institute. I am interested in Machine Learning, Algorithms, and Probability. Feel free to get in touch to discuss about anything interesting!&#xA;https://github.com/spf13/viper Learn more and contribute on GitHub.</description>
     </item>
   </channel>
