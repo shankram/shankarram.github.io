@@ -7,7 +7,7 @@ math: true
 tags:
   - NLP, LLM
 ---
-# An overview of different commonly used tokenizers
+# An overview of commonly used tokenizers
 
 Langauge models have taken the world by storm, thanks to transformers ([Vaswani et al.](https://arxiv.org/abs/1706.03762)). A fundamental question when modeling language is how to convert words into numerical representations that computers can understand. One obvious way is to think of each unique word as a one-hot encoded vector of dimension equal to the size of our vocabulary. This is a bit of a problem since there are over 150,000 words in the english language! Surely we can do better than assigning a unique vector to each word in our vocabulary. Behold, tokenizers. Tokenizers are basically algorithms that help prepare a vocabulary for language models (hopefully one that is smaller than the set of unique words in the corpus). Let's jump right into different tokenizers that are commonly used today.
 
@@ -23,14 +23,16 @@ The order of merges is important since it decides how a new sentence is tokenize
 ```python
 'cherry' -> '<UNK>' 'h' 'e' 'r' 'r' 'y' -> '<UNK>' 'he' 'r' 'r' 'y'
 ```
-Since the character `'c'` was not in the vocabulary, it was tokenized with the catch-all token `<UNK>`. Here's a naive implementation of [BPE in python](https://github.com/shankram/LLMs-from-scratch/blob/main/Tokenizers/Tokenizers.ipynb).
+Since the character `'c'` was not in the vocabulary, it was tokenized with the catch-all token `<UNK>`.
+
+More recently, byte level BPE has replaced character level BPE. Our base vocabulary (`0` - `255`) is the UTF-8 representation of the characters in the corpus (for example, `'h'` is `68`, `'e'` is `65`). To merge two symbols, say `'h'` and `'e'`, we add `'he'` as `256` to our vocabulary. The advantage of this is universal representation. Any character or symbol can be represented with atmost 4 bytes using the UTF-8 encoding. We apply the learned merge rules sequentially till we get the final tokenization. This means no more `<UNK>` tokens!
 
 ## WordPiece Encoding
 
 WordPiece is also an iterative algorithm similar to BPE except for three differences:
 * All characters and subwords in the fragmented corpus (except prefixes) are encoded with `##` before the word. For example, the word `'how'` in $C_0$ is `('h', '##o', '##w')`. `'##o'` and `'##w'` would be merged as `'##ow'`.
 * The pair to be merged is chosen using a score 
-$$ \text{score} = \text{freq of pair} / (\text{freq of first element}\times \text{freq of second element})$$ The score is designed to prioritize merging pairs that occur together frequently but don't occur by themselves in other words. For example, consider the pairs `('ad', '##vantage')` and `('un', '##able')`. `'un'` and `'able'` occur very frequently as parts of other words (undo, capable, etc.) but `'ad'` and `'vantage'` probably occur less frequently so adding `'advantage'` to the vocabulary before `unable` makes sense (assuming the two words fairly frequently in the corpus to begin with).
+$$ \text{score} = \text{freq of pair} / (\text{freq of first element}\times \text{freq of second element})$$ The score is designed to prioritize merging pairs that occur together frequently but don't occur by themselves in other words. For example, consider the pairs `('ad', '##vantage')` and `('un', '##able')`. `'un'` and `'able'` occur very frequently as parts of other words (undo, capable, etc.) but `'ad'` and `'vantage'` probably occur less frequently so adding `'advantage'` to the vocabulary before `unable` makes sense (assuming the two words occur fairly frequently in the corpus to begin with).
 * The merge rules are not stored, only the final vocabulary.
 
 A new word is tokenized by recursively finding the longest prefix of the word from the vocabulary. If any part of the remaining word can't be tokenized with the vocabulary, we tokenize the entire word as `'<UNK>'`. Here are two examples to illustrate. We don't go into the corpus or the vocabulary to sidestep tedious details.
@@ -42,3 +44,15 @@ A new word is tokenized by recursively finding the longest prefix of the word fr
 ```
 
 ## Unigram Encoding
+
+BPE and WordPiece tokenization algorithms start with a small base vocabulary and iteratively build it up. On the other hand, Unigram encoding starts with a large vocabulary and iteratively removes words till the desired size is reached.
+
+A Unigram language model is a model that assumes each token to be independent of the rest of the context, i.e., $P(x_t \vert x_{t-1},...,x_1) = P(x_t)$. The probability of seeing a token $x$ at any position is only dependent on how frequently it appears in the corpus $(\text{freq of token} / \text{sum of freq of all tokens})$. Extending this to words, the probability of seeing a word $w = (x_1x_2...x_k)$ under the unigram model is $\prod_{i=1}^{k} P(x_i \vert x_{<i}) = \prod_i P(x_i)$. The unigram tokenization algorithm starts with a large base vocabulary $V_0$, usually constructed using BPE on characters for a large number of merge steps, or considering every subword of the words in our corpus. We then compute a loss over the corpus as follows
+* For each word $w$ in the corpus, the loss associated with this word under a unigram model with vocabulary $V_i$ is the probability of the best tokenization of the word w.r.t. the vocabulary. That is, $$ L(w) = \max_{\tau} \prod_{t\in \tau} P(t)$$ where $\tau$ is every possible tokenization of the word under the vocabulary.
+* The loss of the whole corpus $(w_1, w_2,...,w_N)$ is defined as $$L = -\log \prod_{w_i} L(w_i) = -\sum_{w_i} \log L(w_i)$$ We use negative log probabilities since the product of probabilities could become arbitrarily small.
+
+In each iteration of the algorithm, we find the token whose removal would lead to the smallest increase in the loss. We stop when we reach the desired vocabulary size. Given a new word, its tokenization is the one corresponding to the best probability under the vocabulary, i.e., $\argmax_{\tau} \prod_{t \in \tau}P(t)$.
+
+In practice, the [_Viterbi algorithm_](https://en.wikipedia.org/wiki/Viterbi_algorithm) is used to find the compute the loss. We will look at a simple DP algorithm the find the best tokenization of a word here. Given a word $w$, we get that $$L(w[:i]) = \min_{sfx \in V} \left\{L(w[:i-j]) \cdot P(sfx) \right\} $$ where $sfx$ is all possible suffixes of $w[:i]$ in the vocabulary and $j$ is the length of the corresponding suffix. Memoization of this gives us the DP algorithm. This can be implemented efficiently using a _trie_ data structure. We will not be looking at how the tokens to be removed are chosen at each iteration since it is out of the scope of this blog post.
+
+A naive implementation of all these tokenizers in python [can be found here](https://github.com/shankram/LLMs-from-scratch/blob/main/Tokenizers/Tokenizers.ipynb).
