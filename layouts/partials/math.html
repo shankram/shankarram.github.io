@@ -1,9 +1,19 @@
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<!-- layouts/partials/math.html -->
+
+<!-- 1. Place the configuration script FIRST. -->
 <script>
   MathJax = {
     tex: {
-      displayMath: [['$$', '$$']],  // block
-      inlineMath: [['$', '$']]                  // inline
+      inlineMath: [['$', '$']],
+      displayMath: [['$$', '$$']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
     }
   };
 </script>
+
+<!-- 2. Then, load the MathJax library. -->
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
