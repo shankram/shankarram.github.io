@@ -1,6 +1,6 @@
 ---
 title: "To ken izers"
-date: 2024-08-30T21:39:42+05:30
+date: 2025-29-09
 draft: false
 toc: false
 math: true
@@ -24,3 +24,21 @@ The order of merges is important since it decides how a new sentence is tokenize
 'cherry' -> '<UNK>' 'h' 'e' 'r' 'r' 'y' -> '<UNK>' 'he' 'r' 'r' 'y'
 ```
 Since the character `'c'` was not in the vocabulary, it was tokenized with the catch-all token `<UNK>`. Here's a naive implementation of [BPE in python](https://github.com/shankram/LLMs-from-scratch/blob/main/Tokenizers/Tokenizers.ipynb).
+
+## WordPiece Encoding
+
+WordPiece is also an iterative algorithm similar to BPE except for three differences:
+* All characters and subwords in the fragmented corpus (except prefixes) are encoded with `##` before the word. For example, the word `'how'` in $C_0$ is `('h', '##o', '##w')`. `'##o'` and `'##w'` would be merged as `'##ow'`.
+* The pair to be merged is chosen using a score 
+$$ \text{score} = \text{freq of pair} / (\text{freq of first element}\times \text{freq of second element})$$ The score is designed to prioritize merging pairs that occur together frequently but don't occur by themselves in other words. For example, consider the pairs `('ad', '##vantage')` and `('un', '##able')`. `'un'` and `'able'` occur very frequently as parts of other words (undo, capable, etc.) but `'ad'` and `'vantage'` probably occur less frequently so adding `'advantage'` to the vocabulary before `unable` makes sense (assuming the two words fairly frequently in the corpus to begin with).
+* The merge rules are not stored, only the final vocabulary.
+
+A new word is tokenized by recursively finding the longest prefix of the word from the vocabulary. If any part of the remaining word can't be tokenized with the vocabulary, we tokenize the entire word as `'<UNK>'`. Here are two examples to illustrate. We don't go into the corpus or the vocabulary to sidestep tedious details.
+```python
+'heresay' -> 'he' '##resay' -> 'he' '##re' '##say'  
+```
+```python
+'totem' -> 'to' '##tem' -> 'to' '##te' '##m' -> 'to' '##te' '<UNK>' -> '<UNK>' 
+```
+
+## Unigram Encoding
